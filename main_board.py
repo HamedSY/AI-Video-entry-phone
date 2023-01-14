@@ -66,9 +66,9 @@ def buzzer_sound(buzz):
         play_tone(buzz,t)
         
 def turn_on(status):
-    if status:
+    if status == "blue":
         GPIO.output(BLUE_LED,True)
-    else:
+    elif status == "red":
         GPIO.output(RED_LED,True)
 
 def turn_off():
