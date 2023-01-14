@@ -1,6 +1,7 @@
 import face_recognition
 import cv2
 import numpy as np
+import time
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
@@ -12,7 +13,7 @@ import numpy as np
 # specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture('https://172.27.50.61:8080/video')
+video_capture = cv2.VideoCapture('http://172.27.55.203:8080/video')
 
 # Load a sample picture and learn how to recognize it.
 hamed_image = face_recognition.load_image_file("hamed.jpg")
@@ -41,6 +42,8 @@ process_this_frame = True
 while True:
     # Grab a single frame of video
     ret, frame = video_capture.read()
+    frame = cv2.resize(frame, None, None, fx = 0.3, fy = 0.3)
+    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
     # Only process every other frame of video to save time
     if process_this_frame:
