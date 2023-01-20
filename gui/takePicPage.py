@@ -1,5 +1,4 @@
 import cv2
-import sys
 from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QDialog, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
@@ -10,13 +9,9 @@ class Thread(QThread):
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        print("b Video")
-        cap = cv2.VideoCapture("http://102.172.117.114:8086/video")
-        print("in run")
+        cap = cv2.VideoCapture("http://192.168.107.116:8086/video")
         while True:
-            print("shit")
             ret, frame = cap.read()
-            print("shit2")
             if ret:
                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = rgbImage.shape
@@ -25,8 +20,12 @@ class Thread(QThread):
                 p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
                 self.changePixmap.emit(p)
 
+    def stop(self):
+        self._run_flag = False
+        self.wait()
 
-class App(QWidget):
+
+class App(QDialog):
     def __init__(self):
         super().__init__()
         self.setupUi()
@@ -73,13 +72,16 @@ class App(QWidget):
         th = Thread(self)
         th.changePixmap.connect(self.setImage)
         th.start()
-        self.show()
 
     def retranslateUi(self, bgWidget):
         _translate = QtCore.QCoreApplication.translate
         self.bgWidget.setWindowTitle(_translate("self.bgWidget", "Dialog"))
         self.takePic.setText(_translate("bgWidget", "take picture"))
         self.nameLabel.setText(_translate("bgWidget", "enter your name:"))
+
+    def closeEvent(self, event):
+        self.th.stop()
+        event.accept()
 
     @pyqtSlot(QImage)
     def setImage(self, image):
@@ -90,11 +92,13 @@ class App(QWidget):
         if len(name) == 0:
             self.error.setText("name box is empty!")
         # else:
-        #ToDo: save the picture
+        #ToDo: save the picture if recognised a face
 
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = App()
-    sys.exit(app.exec())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     secondWindow = App()
+#     secondWindow.show()
+#     sys.exit(app.exec())
+
 
