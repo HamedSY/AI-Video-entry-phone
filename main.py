@@ -7,6 +7,7 @@ import smtplib
 from email.message import EmailMessage
 import ssl
 import RPi.GPIO as GPIO
+import gui.takePicPage
 from gpiozero import Buzzer
 
 sender = 'hamed007.saboor@gmail.com'
@@ -212,16 +213,15 @@ while (True):
 
 
     if mod == 3:
-        if counter % 10 == 0:
-            if process_this_frame:
-                rgb_frame = frame[:, :, ::-1]
-                frame_img_encodings = face_recognition.face_encodings(rgb_frame)
-                for frame_img_encoding in frame_img_encodings:
-                    if compareFaces(valid_imgs_encodings, frame_img_encoding):
-                        print("A valid face has been recognized!")
-                        mod = -1
-                    
-            process_this_frame = not process_this_frame
+        if process_this_frame:
+            rgb_frame = frame[:, :, ::-1]
+            frame_img_encodings = face_recognition.face_encodings(rgb_frame)
+            for frame_img_encoding in frame_img_encodings:
+                if compareFaces(valid_imgs_encodings, frame_img_encoding):
+                    print("A valid face has been recognized!")
+                    mod = -1
+
+        process_this_frame = not process_this_frame
     
     counter += 1
     if counter % 10000 == 0:
