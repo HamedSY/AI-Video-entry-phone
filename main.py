@@ -6,9 +6,9 @@ import os
 import smtplib
 from email.message import EmailMessage
 import ssl
-import RPi.GPIO as GPIO
-import gui.takePicPage
-from gpiozero import Buzzer
+# import RPi.GPIO as GPIO
+import takePicPage
+# from gpiozero import Buzzer
 
 sender = 'hamed007.saboor@gmail.com'
 receiver = 'amir.h.rnn@gmail.com'
@@ -92,7 +92,7 @@ def turn_on(status):
 
 
 def takePicture(img_name):
-    video_capture = cv2.VideoCapture('http://172.27.55.203:8080/video')
+    video_capture = cv2.VideoCapture('http://192.168.53.142:8080/video')
     ret, frame = video_capture.read()
     frame = cv2.resize(frame, None, None, fx = 0.3, fy = 0.3)
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -161,68 +161,70 @@ def pushButton(buzz): #FIXME check if mod and valid_imgs_encodings are need to b
     os.chdir('imgs')
         
         
-
-video_capture = cv2.VideoCapture('http://172.27.55.203:8080/video')
 valid_imgs = []
 valid_imgs_encodings = []
-os.chdir('imgs')
-for file in os.listdir():
-    if file.endswith('.jpg'):
-        this_img = face_recognition.load_image_file(file)
-        try:
-            valid_imgs.append(this_img)
-            valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
-        except IndexError:
-            print("this image doesn't have any faces")
-            continue
 
-mod = -1
-process_this_frame = True
+# video_capture = cv2.VideoCapture('http://192.168.53.142:8080/video')
+# valid_imgs = []
+# valid_imgs_encodings = []
+# os.chdir('imgs')
+# for file in os.listdir():
+#     if file.endswith('.jpg'):
+#         this_img = face_recognition.load_image_file(file)
+#         try:
+#             valid_imgs.append(this_img)
+#             valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
+#         except IndexError:
+#             print("this image doesn't have any faces")
+#             continue
 
-counter = 0
+# mod = -1
+# process_this_frame = True
 
-GPIOsetup()
-buzz = GPIO.PWM(BuzzerPin,440)
-GPIO.add_event_detect(PUSH_BUTTON, GPIO.RISING, callback = lambda x: pushButton(buzz))
+# counter = 0
 
-while (True):
-    ret, frame = video_capture.read()
-    frame = cv2.resize(frame, None, None, fx = 0.3, fy = 0.3)
-    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    cv2.imshow('Webcam', frame)
+# # GPIOsetup()
+# # buzz = GPIO.PWM(BuzzerPin,440)
+# # GPIO.add_event_detect(PUSH_BUTTON, GPIO.RISING, callback = lambda x: pushButton(buzz))
 
-    key = cv2.waitKey(1)
-    if key == ord('c'):
-        takePicture(str(len(valid_imgs) + 1))
-        updateValidImgs(str(len(valid_imgs) + 1) + ".jpg")
-    # elif key == ord('b'): # instead of push button
-    #     pushButton()
+# while (True):
+#     ret, frame = video_capture.read()
+#     frame = cv2.resize(frame, None, None, fx = 0.3, fy = 0.3)
+#     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+#     cv2.imshow('Webcam', frame)
 
-    elif key == ord('1'):
-        mod = 1
-        print("Mode has changed successfully: An alone little kid at home!")
-    elif key == ord('2'):
-        mod = 2
-        print("Mode has changed successfully: No one at home!")
-    elif key == ord('3'):
-        mod = 3
-        print("Mode has changed successfully: Automatic mode!")
-    elif key == ord('q'):
-        print("out of the program ...")
-        break
+#     key = cv2.waitKey(1)
+#     if key == ord('c'):
+#         takePicture(str(len(valid_imgs) + 1))
+#         updateValidImgs(str(len(valid_imgs) + 1) + ".jpg")
+#     # elif key == ord('b'): # instead of push button
+#     #     pushButton()
+
+#     elif key == ord('1'):
+#         mod = 1
+#         print("Mode has changed successfully: An alone little kid at home!")
+#     elif key == ord('2'):
+#         mod = 2
+#         print("Mode has changed successfully: No one at home!")
+#     elif key == ord('3'):
+#         mod = 3
+#         print("Mode has changed successfully: Automatic mode!")
+#     elif key == ord('q'):
+#         print("out of the program ...")
+#         break
 
 
-    if mod == 3:
-        if process_this_frame:
-            rgb_frame = frame[:, :, ::-1]
-            frame_img_encodings = face_recognition.face_encodings(rgb_frame)
-            for frame_img_encoding in frame_img_encodings:
-                if compareFaces(valid_imgs_encodings, frame_img_encoding):
-                    print("A valid face has been recognized!")
-                    mod = -1
+#     if mod == 3:
+#         if process_this_frame:
+#             rgb_frame = frame[:, :, ::-1]
+#             frame_img_encodings = face_recognition.face_encodings(rgb_frame)
+#             for frame_img_encoding in frame_img_encodings:
+#                 if compareFaces(valid_imgs_encodings, frame_img_encoding):
+#                     print("A valid face has been recognized!")
+#                     mod = -1
 
-        process_this_frame = not process_this_frame
+#         process_this_frame = not process_this_frame
     
-    counter += 1
-    if counter % 10000 == 0:
-        counter = 0
+#     counter += 1
+#     if counter % 10000 == 0:
+#         counter = 0

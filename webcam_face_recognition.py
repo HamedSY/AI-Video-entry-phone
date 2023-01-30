@@ -13,7 +13,7 @@ import time
 # specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture('http://172.27.55.203:8080/video')
+video_capture = cv2.VideoCapture('http://192.168.53.142:8080/video')
 
 # Load a sample picture and learn how to recognize it.
 hamed_image = face_recognition.load_image_file("hamed.jpg")

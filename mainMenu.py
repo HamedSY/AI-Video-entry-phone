@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QStackedWidget
 from PyQt5.uic import loadUi
 from takePicPage import App
 from page2 import App2
+import face_recognition
 import main
 # import face_recognition
 # import cv2
@@ -15,17 +16,15 @@ import main
 # import RPi.GPIO as GPIO
 # from gpiozero import Buzzer
 
-url = "http://192.168.107.116:8086/video"
-video_capture = cv2.VideoCapture('http://172.27.55.203:8080/video')
-valid_imgs = []
-valid_imgs_encodings = []
+url = "http://192.168.53.142:8080/video"
+video_capture = cv2.VideoCapture(url)
 os.chdir('imgs')
 for file in os.listdir():
     if file.endswith('.jpg'):
         this_img = face_recognition.load_image_file(file)
         try:
-            valid_imgs.append(this_img)
-            valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
+            main.valid_imgs.append(this_img)
+            main.valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
         except IndexError:
             print("this image doesn't have any faces")
             continue
@@ -34,15 +33,15 @@ mod = -1
 process_this_frame = True
 counter = 0
 
-main.GPIOsetup()
-buzz = GPIO.PWM(main.BuzzerPin,440)
-GPIO.add_event_detect(main.PUSH_BUTTON, GPIO.RISING, callback = lambda x: main.pushButton(buzz))
+# main.GPIOsetup()
+# buzz = GPIO.PWM(main.BuzzerPin,440)
+# GPIO.add_event_detect(main.PUSH_BUTTON, GPIO.RISING, callback = lambda x: main.pushButton(buzz))
 
 
 class welcomeScreen(QDialog):
     def __init__(self):
         super(welcomeScreen, self).__init__()
-        loadUi("welcomeScreen.ui", self)
+        loadUi("../welcomeScreen.ui", self)
         mode = -1
         self._new_window = None
         self.member.clicked.connect(self.memberFunc)
