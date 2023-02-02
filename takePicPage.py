@@ -34,6 +34,7 @@ class App(QDialog):
         self.setupUi()
 
     def setupUi(self):
+        self.bgWidget = QLabel(self)
         self.bgWidget.setObjectName("bgWidget")
         self.bgWidget.resize(600, 400)
         self.bgWidget.setStyleSheet("QWidget#bgWidget{\n"
