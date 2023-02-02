@@ -6,16 +6,10 @@ import os
 import smtplib
 from email.message import EmailMessage
 import ssl
-# import RPi.GPIO as GPIO
-import takePicPage
-# from gpiozero import Buzzer
+from PyQt5 import QtWidgets
+import database
+import RPi.GPIO as GPIO
 
-sender = 'hamed007.saboor@gmail.com'
-receiver = 'amir.h.rnn@gmail.com'
-subject = 'Knock Knock!'
-password = '' #TODO hamed's application password
-message = "Hello!\nA Person has just ringed your house!\nHis/Her picture is attached to the mail.\n"
-imageFile = "unknown.jpg"
 
 SPEED = 1.5
 RED_LED = 12
@@ -23,37 +17,8 @@ BLUE_LED = 16
 BuzzerPin = 13
 PUSH_BUTTON = 22
 
-TONES = {
-        "c6":1047,
-        "b5":988,
-        "a5":888,
-        "g5":784,
-        "f5":698,
-        "e5":659,
-        "eb5":622,
-        "d5":587,
-        "c5":523,
-        "b4":494,
-        "a4":440,
-        "ab4":415,
-        "g4":392,
-        "f4":349,
-        "e4":330,
-        "d4":294,
-        "c4":262,
-        }
-SONG = [
-        ["e5",16],["eb5",16],
-        ["e5",16],["eb5",16],["e5",16],["b4",16],["d5",16],["c5",16],
-        ["a4",8],["p",16],["c4",16],["e4",16],["a4",16],
-        ["b4",8],["p",16],["e4",16],["ab4",16],["b4",16],
-        ["c5",8],["p",16],["e4",16],["e5",16],["eb5",16],
-        ["e5",16],["eb5",16],["e5",16],["b4",16],["d5",16],["c5",16],
-        ["a4",8],["p",16],["c4",16],["e4",16],["a4",16],
-        ["b4",8],["p",16],["e4",16],["c5",16],["b4",16],["a4",4]
-       ]   
-
 def GPIOsetup():
+
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     
@@ -64,18 +29,18 @@ def GPIOsetup():
 
 
 def play_tone(p,tone):
-    duration = 1./(tone[1]*0.25*SPEED)
+    duration = 1./(tone[1]*0.25* SPEED)
     if tone[0] == 'p':
         time.sleep(duration)
     else:
-        frequency = TONES[tone[0]]
+        frequency = database.TONES[tone[0]]
         p.ChangeFrequency(frequency)
         p.start(0.5)
         time.sleep(duration)
         p.stop()
         
 def buzzer_sound(buzz):
-    for t in SONG:
+    for t in database.SONG:
         play_tone(buzz,t)
 
 def turn_off():
@@ -92,7 +57,7 @@ def turn_on(status):
 
 
 def takePicture(img_name):
-    video_capture = cv2.VideoCapture('http://192.168.53.142:8080/video')
+    video_capture = cv2.VideoCapture(database.url)
     ret, frame = video_capture.read()
     frame = cv2.resize(frame, None, None, fx = 0.3, fy = 0.3)
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
@@ -107,12 +72,12 @@ def takePicture(img_name):
 def updateValidImgs(name):
     this_img = face_recognition.load_image_file(name)
     try:
-        valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
-        valid_imgs.append(this_img)
-        print("your image added successfully!")
+        database.valid_imgs_encodings.append(face_recognition.face_encodings(this_img)[0])
+        database.valid_imgs.append(this_img)
+        return "your image added successfully!"
     except IndexError:
-        print("image " + name + " doesn't have any faces")
-        return
+        return "image " + name + " doesn't have any faces"
+
 
 
 def compareFaces(valid_imgs_encodings, frame_img_encoding):
@@ -124,22 +89,24 @@ def compareFaces(valid_imgs_encodings, frame_img_encoding):
 
 def sendEmail():
     email = EmailMessage()
-    email['From'] = sender
-    email['Subject'] = subject
-    email.set_content(message)
-    with open(imageFile, 'rb') as fp:
+    email['From'] = database.sender
+    email['Subject'] = database.subject
+    email.set_content(database.message)
+    with open(database.imageFile, 'rb') as fp:
         imgData = fp.read()
     email.add_attachment(imgData, maintype = 'image', subtype = 'png')
 
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context = context) as smtp:
-        smtp.login(sender, password)
-        smtp.sendmail(sender, receiver, email.as_string())
-        print("Email has been sent successfully!")
+        smtp.login(database.sender, database.password)
+        smtp.sendmail(database.sender, database.receiver, email.as_string())
+        error_dialog = QtWidgets.QErrorMessage()
+        error_dialog.showMessage("Email has been sent successfully!")
+
 
 
 def pushButton(buzz): #FIXME check if mod and valid_imgs_encodings are need to be passed to function
-    if mod == 3:
+    if database.mode == 3:
         return
 
     os.chdir('..')
@@ -148,21 +115,20 @@ def pushButton(buzz): #FIXME check if mod and valid_imgs_encodings are need to b
     unknown_face = face_recognition.load_image_file("unknown.jpg")
     unknown_face_encodings = face_recognition.face_encodings(unknown_face)
 
-    if mod == 1:
+    if database.mode == 1:
         for unknown_face_encoding in unknown_face_encodings:
-            if compareFaces(valid_imgs_encodings, unknown_face_encoding):
+            if compareFaces(database.valid_imgs_encodings, unknown_face_encoding):
                 turn_on("blue")
                 return
         turn_on("red")
 
-    elif mod == 2:
+    elif database.mode == 2:
         sendEmail()
 
     os.chdir('imgs')
         
         
-valid_imgs = []
-valid_imgs_encodings = []
+
 
 # video_capture = cv2.VideoCapture('http://192.168.53.142:8080/video')
 # valid_imgs = []
