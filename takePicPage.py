@@ -51,7 +51,7 @@ class App(QDialog):
         self.label.setText("")
         self.label.setObjectName("label")
         self.error = QtWidgets.QLabel(self.bgWidget)
-        self.error.setGeometry(QtCore.QRect(230, 10, 121, 31))
+        self.error.setGeometry(QtCore.QRect(230, 10, 200, 31))
         self.error.setStyleSheet("color: red;\n"
                                  "font: 10pt \"MS Shell Dlg 2\";")
         self.error.setText("")
