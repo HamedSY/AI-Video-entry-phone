@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.uic import loadUi
 from takePicPage import App
@@ -41,35 +42,36 @@ class welcomeScreen(QDialog):
 
     def memberFunc(self):
         print("add member")
-        window.hide()
-        self._new_window = App()
-        self._new_window.show()
+        main.qtStack.setCurrentIndex(1)
         print("Video Played")
     def mode_1Func(self):
         print("mode 1")
         main.mode = 1
-        window.hide()
-        self._new_window = App2()
-        self._new_window.show()
+        main.qtStack.setCurrentIndex(2)
         print("entered")
     def mode_2Func(self):
         print("mode 2")
         main.mode = 2
-        window.hide()
-        self._new_window = App2()
-        self._new_window.show()
+        main.qtStack.setCurrentIndex(2)
         print("entered")
     def mode_3Func(self):
         print("mode 3")
         main.mode = 3
-        window.hide()
-        self._new_window = App2()
-        self._new_window.show()
+        main.qtStack.setCurrentIndex(2)
         print("entered")
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = welcomeScreen()
-    window.show()
-    sys.exit(app.exec())
+
+app = QApplication(sys.argv)
+welcome = welcomeScreen()
+main.qtStack = QtWidgets.QStackedWidget()
+main.qtStack.addWidget(welcome)
+main.qtStack.addWidget(App())
+main.qtStack.addWidget(App2())
+main.qtStack.setFixedHeight(400)
+main.qtStack.setFixedWidth(600)
+main.qtStack.show()
+try:
+    sys.exit(app.exec_())
+except:
+    print("Exiting")
 

@@ -67,7 +67,7 @@ class App(QDialog):
                                     "font: 14pt \"MS Shell Dlg 2\";\n"
                                     "background-color: rgb(57, 174, 169);")
         self.return_2.setObjectName("return_2")
-        # self.return_2.clicked.connect(self.returnFunc)
+        self.return_2.clicked.connect(self.returnFunc)
         self.nameLabel = QtWidgets.QLabel(self.bgWidget)
         self.nameLabel.setGeometry(QtCore.QRect(420, 100, 150, 20))
         self.nameLabel.setObjectName("nameLabel")
@@ -75,9 +75,9 @@ class App(QDialog):
         self.retranslateUi(self.bgWidget)
         QtCore.QMetaObject.connectSlotsByName(self.bgWidget)
 
-        th = Thread(self)
-        th.changePixmap.connect(self.setImage)
-        th.start()
+        self.th = Thread(self)
+        self.th.changePixmap.connect(self.setImage)
+        self.th.start()
 
     def retranslateUi(self, bgWidget):
         _translate = QtCore.QCoreApplication.translate
@@ -102,8 +102,10 @@ class App(QDialog):
             main.takePicture(str(len(main.valid_imgs) + 1))
             main.updateValidImgs(str(len(main.valid_imgs) + 1) + ".jpg")
 
-    # def returnFunc(selfself):
-    # #TODO : switch to main
+    def returnFunc(self):
+        main.mode = -1
+        self.th.quit()
+        main.qtStack.setCurrentIndex(0)
 
 
 

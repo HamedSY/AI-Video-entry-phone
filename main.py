@@ -14,6 +14,7 @@ subject = 'Knock Knock!'
 password = 'rqbndsjuhanxutkh'
 message = "Hello!\nA Person has just ringed your house!\nHis/Her picture is attached to the mail.\n"
 imageFile = "unknown.jpg"
+qtStack = None
 
 RED_LED = 12
 BLUE_LED = 16

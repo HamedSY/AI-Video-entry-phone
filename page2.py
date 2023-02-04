@@ -58,6 +58,7 @@ class App2(QDialog):
                                     "font: 14pt \"MS Shell Dlg 2\";\n"
                                     "background-color: rgb(57, 174, 169);")
         self.return_.setObjectName("return_")
+        self.return_.clicked.connect(self.returnFunc)
 
         self.retranslateUi(self.bgWidget)
         QtCore.QMetaObject.connectSlotsByName(self.bgWidget)
@@ -65,10 +66,9 @@ class App2(QDialog):
         self.label = QLabel(self)
         self.label.setGeometry(QtCore.QRect(140, 60, 320, 240))
 
-        print("j")
-        th = Thread(self)
-        th.changePixmap.connect(self.setImage)
-        th.start()
+        self.th = Thread(self)
+        self.th.changePixmap.connect(self.setImage)
+        self.th.start()
 
     def retranslateUi(self, bgWidget):
         _translate = QtCore.QCoreApplication.translate
@@ -76,10 +76,15 @@ class App2(QDialog):
         self.return_.setText(_translate("bgWidget", "return"))
 
     def closeEvent(self, event):
-        self.th.stop()
+        self.th.quit()
         event.accept()
 
     @pyqtSlot(QImage)
     def setImage(self, image):
         self.label.setPixmap(QPixmap.fromImage(image))
+
+    def returnFunc(self):
+        main.mode = -1
+        self.th.quit()
+        main.qtStack.setCurrentIndex(0)
 
