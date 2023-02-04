@@ -3,15 +3,14 @@ from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QDialog, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore, QtGui, QtWidgets
-import database
-import controller
+import main
 
 
 class Thread(QThread):
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        cap = cv2.VideoCapture(database.url)
+        cap = cv2.VideoCapture(main.url)
         while True:
             ret, frame = cap.read()
             if ret:
@@ -68,7 +67,7 @@ class App(QDialog):
                                     "font: 14pt \"MS Shell Dlg 2\";\n"
                                     "background-color: rgb(57, 174, 169);")
         self.return_2.setObjectName("return_2")
-        # self.takePic.clicked.connect(self.returnFunc)
+        # self.return_2.clicked.connect(self.returnFunc)
         self.nameLabel = QtWidgets.QLabel(self.bgWidget)
         self.nameLabel.setGeometry(QtCore.QRect(420, 100, 150, 20))
         self.nameLabel.setObjectName("nameLabel")
@@ -100,8 +99,8 @@ class App(QDialog):
         if len(name) == 0:
             self.error.setText("name box is empty!")
         else:
-            controller.takePicture(str(len(database.valid_imgs) + 1))
-            self.error.setText(controller.updateValidImgs(str(len(database.valid_imgs) + 1) + ".jpg"))
+            main.takePicture(str(len(main.valid_imgs) + 1))
+            main.updateValidImgs(str(len(main.valid_imgs) + 1) + ".jpg")
 
     # def returnFunc(selfself):
     # #TODO : switch to main

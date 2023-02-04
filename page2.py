@@ -4,15 +4,15 @@ from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore, QtGui, QtWidgets
 import face_recognition
-import database
-import controller
+import main
 
 
 class Thread(QThread):
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        cap = cv2.VideoCapture(database.url)
+        counter = 0
+        cap = cv2.VideoCapture(main.url)
         while True:
             ret, frame = cap.read()
             if ret:
@@ -22,14 +22,18 @@ class Thread(QThread):
                 convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
                 p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
                 self.changePixmap.emit(p)
-            if database.mode == 3 and database.process_this_frame:
-                rgb_frame = frame[:, :, ::-1]
-                frame_img_encodings = face_recognition.face_encodings(rgb_frame)
-                for frame_img_encoding in frame_img_encodings:
-                    if controller.compareFaces(database.valid_imgs_encodings, frame_img_encoding):
-                        print("A valid face has been recognized!")
-                        database.mode = -1
-                database.process_this_frame = not database.process_this_frame
+            if main.mode == 3:
+                counter += 1
+                if counter % 20 != 0:
+                    continue
+                for frame_img_encoding in face_recognition.face_encodings(frame):
+                    if main.compareFaces(main.valid_imgs_encodings, frame_img_encoding):
+                        main.showMessage("A valid face has been recognized!")
+                        main.turn_off()
+                        main.turn_on("blue", 3)
+                        main.turn_on("red", -1)
+            if counter % 10000 == 0:
+                counter = 0
 
     def stop(self):
         # self._run_flag = False

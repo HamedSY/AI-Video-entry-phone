@@ -1,13 +1,12 @@
 import face_recognition
 import cv2
-import numpy as np
 import time
 import os
 import smtplib
 from email.message import EmailMessage
 import ssl
 from PyQt5 import QtWidgets
-import database
+from etc import database
 import RPi.GPIO as GPIO
 
 
@@ -109,7 +108,7 @@ def pushButton(buzz): #FIXME check if mod and valid_imgs_encodings are need to b
     if database.mode == 3:
         return
 
-    os.chdir('..')
+    os.chdir('../..')
     takePicture("unknown")
     buzzer_sound(buzz)
     unknown_face = face_recognition.load_image_file("unknown.jpg")
@@ -125,7 +124,7 @@ def pushButton(buzz): #FIXME check if mod and valid_imgs_encodings are need to b
     elif database.mode == 2:
         sendEmail()
 
-    os.chdir('imgs')
+    os.chdir('../imgs')
         
         
 
