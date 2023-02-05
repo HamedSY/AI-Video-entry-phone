@@ -57,8 +57,6 @@ class welcomeScreen(QDialog):
     def mode_3Func(self):
         print("mode 3")
         main.mode = 3
-        th = main.ThreadMode3()
-        th.start()
         main.qtStack.setCurrentIndex(2)
         print("entered")
 
