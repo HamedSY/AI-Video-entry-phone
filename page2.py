@@ -7,37 +7,37 @@ import face_recognition
 import main
 
 
-class Thread(QThread):
-    changePixmap = pyqtSignal(QImage)
+# class Thread(QThread):
+#     changePixmap = pyqtSignal(QImage)
+#
+#     def run(self):
+#         counter = 0
+#         cap = cv2.VideoCapture(main.url)
+#         while True:
+#             ret, frame = cap.read()
+#             if ret:
+#                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#                 h, w, ch = rgbImage.shape
+#                 bytesPerLine = ch * w
+#                 convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+#                 p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
+#                 self.changePixmap.emit(p)
+#             if main.mode == 3:
+#                 counter += 1
+#                 if counter % 200 != 0:
+#                     continue
+#                 for frame_img_encoding in face_recognition.face_encodings(frame):
+#                     if main.compareFaces(main.valid_imgs_encodings, frame_img_encoding):
+#                         main.showMessage("A valid face has been recognized!")
+#                         main.turn_off()
+#                         main.turn_on("blue", 3)
+#                         main.turn_on("red", -1)
+#             if counter % 10000 == 0:
+#                 counter = 0
 
-    def run(self):
-        counter = 0
-        cap = cv2.VideoCapture(main.url)
-        while True:
-            ret, frame = cap.read()
-            if ret:
-                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = rgbImage.shape
-                bytesPerLine = ch * w
-                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
-                self.changePixmap.emit(p)
-            if main.mode == 3:
-                counter += 1
-                if counter % 20 != 0:
-                    continue
-                for frame_img_encoding in face_recognition.face_encodings(frame):
-                    if main.compareFaces(main.valid_imgs_encodings, frame_img_encoding):
-                        main.showMessage("A valid face has been recognized!")
-                        main.turn_off()
-                        main.turn_on("blue", 3)
-                        main.turn_on("red", -1)
-            if counter % 10000 == 0:
-                counter = 0
-
-    def stop(self):
-        # self._run_flag = False
-        self.wait()
+    # def stop(self):
+    #     # self._run_flag = False
+    #     self.wait()
 
 
 class App2(QDialog):
@@ -66,7 +66,7 @@ class App2(QDialog):
         self.label = QLabel(self)
         self.label.setGeometry(QtCore.QRect(140, 60, 320, 240))
 
-        self.th = Thread(self)
+        self.th = main.Thread(self)
         self.th.changePixmap.connect(self.setImage)
         self.th.start()
 
@@ -85,6 +85,6 @@ class App2(QDialog):
 
     def returnFunc(self):
         main.mode = -1
-        self.th.quit()
+        self.th.stop()
         main.qtStack.setCurrentIndex(0)
 

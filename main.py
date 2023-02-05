@@ -5,22 +5,62 @@ import smtplib
 from email.message import EmailMessage
 import ssl
 import RPi.GPIO as GPIO
+from PyQt5.QtCore import QThread, Qt, pyqtSignal
+from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QMessageBox
 
-url = 'http://192.168.1.4:8080/video'
+url = 'http://192.168.53.187:8080/video'
 sender = 'amirrn13821382@gmail.com'
-receiver = 'amir.h.rnn@gmail.com'
+receiver = 'hamed007.saboor@gmail.com'
 subject = 'Knock Knock!'
 password = 'rqbndsjuhanxutkh'
 message = "Hello!\nA Person has just ringed your house!\nHis/Her picture is attached to the mail.\n"
 imageFile = "unknown.jpg"
 qtStack = None
 
-RED_LED = 12
-BLUE_LED = 16
+RED_LED = 16
+BLUE_LED = 12
 PUSH_BUTTON = 22
 BUZZER_PIN = 13
 SPEED = 2
+cap = cv2.VideoCapture(url)
+
+class Thread(QThread):
+    changePixmap = pyqtSignal(QImage)
+
+    def run(self):
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = rgbImage.shape
+                bytesPerLine = ch * w
+                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+                p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
+                self.changePixmap.emit(p)
+
+    def stop(self):
+        # self._run_flag = False
+        self.wait()
+
+
+class ThreadMode3(QThread):
+    def run(self):
+        counter = 0
+        if mode == 3:
+            while True:
+                ret, frame = cap.read()
+                counter += 1
+                if counter % 200 != 0:
+                    continue
+                for frame_img_encoding in face_recognition.face_encodings(frame):
+                    if compareFaces(valid_imgs_encodings, frame_img_encoding):
+                        showMessage("A valid face has been recognized!")
+                        turn_off()
+                        turn_on("blue", 3)
+                        turn_on("red", -1)
+            if counter % 10000 == 0:
+                counter = 0
 
 notes = {
     'B0': 31,
@@ -129,7 +169,7 @@ mysong = [
     notes["E5"], notes["EB5"],
     notes["E5"], notes["EB5"], notes["E5"], notes["B4"], notes["D5"], notes["C5"],
     notes["A4"], 0, notes["C4"], notes["E4"], notes["A4"],
-    notes["B4"], 0, notes["E4"], notes["AB4"], notes["B4"],
+    notes["B4"], 0, notes["E4"], notes["GS4"], notes["B4"],
     notes["C5"], 0, notes["E4"], notes["E5"], notes["EB5"],
     notes["E5"], notes["EB5"], notes["E5"], notes["B4"], notes["D5"], notes["C5"],
     notes["A4"], 0, notes["C4"], notes["E4"], notes["A4"],
@@ -249,6 +289,7 @@ def sendEmail():
         smtp.login(sender, password)
         smtp.sendmail(sender, receiver, email.as_string())
         showMessage("Email has been sent successfully!")
+    turn_off()
 
 
 def pushButton():
@@ -264,12 +305,12 @@ def pushButton():
         play(manaderna_melody, manaderna_tempo, 0.30)
         for unknown_face_encoding in unknown_face_encodings:
             if compareFaces(valid_imgs_encodings, unknown_face_encoding):
-                showMessage("Face recognized.")
                 turn_on("blue", 2)
+                showMessage("Face recognized.")
                 return
-        showMessage("Face didn't recognize!")
         turn_on("red", 2)
-
+        showMessage("Face didn't recognize!")
+        
     elif mode == 2:
         turn_on("blue", -1)
         turn_on("red", -1)
@@ -277,7 +318,7 @@ def pushButton():
         play(popcorn_melody, popcorn_tempo, 0.50, 1.000)
         print("Sending email to house")
         sendEmail()
-        turn_off()
+        
 
 
 def showMessage(info):

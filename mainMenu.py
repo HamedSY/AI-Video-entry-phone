@@ -26,12 +26,11 @@ for file in os.listdir():
             main.showMessage("this image doesn't have any faces")
             continue
 
-
-main.destroy()
 main.GPIOsetup()
 
 class welcomeScreen(QDialog):
     def __init__(self):
+        os.chdir('..')
         super(welcomeScreen, self).__init__()
         loadUi("welcomeScreen.ui", self)
         self._new_window = None
@@ -39,6 +38,7 @@ class welcomeScreen(QDialog):
         self.mode_1.clicked.connect(self.mode_1Func)
         self.mode_2.clicked.connect(self.mode_2Func)
         self.mode_3.clicked.connect(self.mode_3Func)
+        os.chdir('imgs')
 
     def memberFunc(self):
         print("add member")
@@ -57,6 +57,8 @@ class welcomeScreen(QDialog):
     def mode_3Func(self):
         print("mode 3")
         main.mode = 3
+        th = main.ThreadMode3()
+        th.start()
         main.qtStack.setCurrentIndex(2)
         print("entered")
 

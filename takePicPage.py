@@ -6,24 +6,24 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import main
 
 
-class Thread(QThread):
-    changePixmap = pyqtSignal(QImage)
-
-    def run(self):
-        cap = cv2.VideoCapture(main.url)
-        while True:
-            ret, frame = cap.read()
-            if ret:
-                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = rgbImage.shape
-                bytesPerLine = ch * w
-                convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
-                self.changePixmap.emit(p)
-
-    def stop(self):
-        # self._run_flag = False
-        self.wait()
+# class Thread(QThread):
+#     changePixmap = pyqtSignal(QImage)
+#
+#     def run(self):
+#         cap = cv2.VideoCapture(main.url)
+#         while True:
+#             ret, frame = cap.read()
+#             if ret:
+#                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#                 h, w, ch = rgbImage.shape
+#                 bytesPerLine = ch * w
+#                 convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+#                 p = convertToQtFormat.scaled(320, 240, Qt.KeepAspectRatio)
+#                 self.changePixmap.emit(p)
+#
+#     def stop(self):
+#         # self._run_flag = False
+#         self.wait()
 
 
 class App(QDialog):
@@ -75,7 +75,7 @@ class App(QDialog):
         self.retranslateUi(self.bgWidget)
         QtCore.QMetaObject.connectSlotsByName(self.bgWidget)
 
-        self.th = Thread(self)
+        self.th = main.Thread(self)
         self.th.changePixmap.connect(self.setImage)
         self.th.start()
 
